@@ -1,0 +1,46 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>WriterDuetGame</title>
+  
+
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+
+</head>
+
+<body>
+	
+	<h1>The Game?</h1>
+	<p>
+		Enter your name:
+	</p>
+	
+	<input id="name_box" type="text">
+	<input id="btn_submit_user" type="button" value="Enter">
+		
+	
+	
+	
+	
+	<script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+	
+	<script>
+		// Initialize Firebase
+		var config = {
+			apiKey: "AIzaSyD1z_RkBZfFWNBbvMUyI00DNt7O_xckr5g",
+			authDomain: "wordgame-c3ba4.firebaseapp.com",
+			databaseURL: "https://wordgame-c3ba4.firebaseio.com",
+			projectId: "wordgame-c3ba4",
+			storageBucket: "wordgame-c3ba4.appspot.com",
+			messagingSenderId: "984742786444"
+		};
+		firebase.initializeApp(config);
+	</script>
+	
+  <script src="scripts.js"></script>
+</body>
+</html>
