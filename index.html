@@ -8,7 +8,7 @@
   <title>WriterDuetGame</title>
   
 
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
+  <link rel="stylesheet" href="styles.css?">
 
 </head>
 
@@ -18,12 +18,27 @@
 	<p>
 		Enter your name:
 	</p>
+	<form onsubmit="registerPlayer();">
+		<input id="name_box" type="text">
+		<input id="btn_submit_user" type="submit" value="Enter">
+	</form>
 	
-	<input id="name_box" type="text">
-	<input id="btn_submit_user" type="button" value="Enter">
+	
+	<div id="host_prompt">
+		<p>Here are 9 random letters</p>	
+		<div id="game_letters"></div>
+		<p>
+			Make a word using these letters. You can only use each letter once.
+			Others will try to guess this word.
+		</p>
 		
-	<p id=game_letters_par></p>	
-	<div id="game_letters"></div>
+		<input id="word">
+		<input id="btn_submit_word" type="button" value="Enter">
+		<textarea id="description" rows="4" cols="40">Give a description of your word
+		</textarea>
+		<input id="btn_submit_desc" type="button" value="Enter">
+	</div>
+	
 	
 	
 	

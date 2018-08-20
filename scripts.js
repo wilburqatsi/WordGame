@@ -1,14 +1,14 @@
 
-
+// Creates random letters for game
 let letterGenerator = ()=>{
-	const letters = "abcdefghijklmnopqrstuvwxyz";
+	const letters = "abcdefghijklmnopqrstuvwxyz"; //string of possible letters
 	
-	let randomLetters = [];
+	let randomLetters = []; //random letter array
 	
-	while(randomLetters.length < 9 ){
+	while(randomLetters.length < 9 ){ //add a random letter while array length less than 9
 		randomLetters.push(letters[Math.floor(Math.random() * 25)]);
 		
-		if(randomLetters.length === 9){
+		if(randomLetters.length === 9){ // if array size = 9, then check to see if there's enough consonants & vowels
 			let vowels = 0;
 			let consonants = 0;
 			randomLetters.forEach((letter)=>{
@@ -24,11 +24,11 @@ let letterGenerator = ()=>{
 						consonants++;
 				}
 			});
-			if(vowels <= 2 || consonants <= 2){
+			if(vowels < 2 || consonants < 2){ // erase array if there are not enough vowels/consonants
 				randomLetters = [];
 			}
 			else{
-				return randomLetters;
+				return randomLetters; // return array if length === 9 and vowels/consonants > 2
 			}
 		}
 	}
@@ -38,11 +38,11 @@ let letterGenerator = ()=>{
 function createGame(newGame){
 	if(newGame){
 		
-		const randomLetters = letterGenerator();
+		
 		
 		firebaseObj.ref().set({
 			host : "",
-			gameLetters : randomLetters,
+			gameLetters : "",
 			gameState : "inactive",
 			correctAnswer : "",
 			answerDescription : "",
@@ -81,11 +81,30 @@ function registerPlayer(){
 	firebaseObj.ref().update(updates);
 }
 
+function addWord(){
+	
+	const gameWord = word.value;
+	var updates = {};
+	updates.correctAnswer = gameWord;
+	firebaseObj.ref().update(updates);
+	
+}
+
 
 //------------------------------------------------------------------------------------------------
 const firebaseObj = firebase.database();
+
+// HTML elements
 const userNameBox = document.getElementById("name_box");
-const userSubmit = document.getElementById("btn_submit_user");
+const userBtn = document.getElementById("btn_submit_user");
+
+const hostPrompt = document.getElementById("host_prompt");
+
+const letters = document.getElementById("game_letters");
+const word = document.getElementById("word");
+const wordBtn = document.getElementById("btn_submit_word");
+const description = document.getElementById("description");
+const descBtn = document.getElementById("btn_submit_desc");
 
 
 
@@ -93,18 +112,31 @@ const userSubmit = document.getElementById("btn_submit_user");
 // First check if game has been created
 firebaseObj.ref().once("value").then((snap)=>{ 
 
-	const newGame = (snap.val() === null);
-	createGame(newGame);
+	const isNewGame = (snap.val() === null);
+	createGame(isNewGame);
 	const playerKey = createPlayer();
 	
-	if(newGame){
+	//Add User's name to firebase player object
+	//userBtn.addEventListener("click", registerPlayer);
+	
+	//If player is the host and creating a new game...
+	if(isNewGame){
+		hostPrompt.style.display = "block"; //reveal host prompt
+		const randomLetters = letterGenerator();
 		var updates = {};
 		updates.host = playerKey;
+		updates.gameLetters = randomLetters;
+		
 		firebaseObj.ref().update(updates);
+		letters.innerHTML = randomLetters.join(" ");
+		
+		
+		
+		
+		
 	}
 	
-	//Add User's name to firebase player object
-	userSubmit.addEventListener("click", registerPlayer);
+	
 	
 	
 });
