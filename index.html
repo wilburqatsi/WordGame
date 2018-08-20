@@ -18,10 +18,10 @@
 	<p>
 		Enter your name:
 	</p>
-	<form onsubmit="registerPlayer();">
-		<input id="name_box" type="text">
-		<input id="btn_submit_user" type="submit" value="Enter">
-	</form>
+	
+	<input id="name_box" type="text">
+	<!--<button id="btn_submit_user" onclick="registerPlayer();">Enter</button>-->
+	<button id="btn_submit_user" onclick="renderWelcome();">Enter</button>
 	
 	
 	<div id="host_prompt">
@@ -33,13 +33,14 @@
 		</p>
 		
 		<input id="word">
-		<input id="btn_submit_word" type="button" value="Enter">
+		<button id="btn_submit_word" onclick="addWord();">Enter</button>
+		
 		<textarea id="description" rows="4" cols="40">Give a description of your word
 		</textarea>
 		<input id="btn_submit_desc" type="button" value="Enter">
 	</div>
 	
-	
+	<a href="the-gauntlet.html">Go to gauntlet</a>
 	
 	
 	<script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>

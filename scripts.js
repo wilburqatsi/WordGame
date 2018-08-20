@@ -74,6 +74,7 @@ function createPlayer(){
 
 function registerPlayer(){
 	const userName = userNameBox.value;
+	console.log(userName);
 	var updates = {};
 	updates["players/" + playerKey + "/name"] = userName;
 	updates["players/" + playerKey + "/hasRegistered"] = true;
@@ -90,11 +91,18 @@ function addWord(){
 	
 }
 
+function renderWelcome(){
+	
+	body.innerHTML =
+		"<p id = test>Let's write some crazy stuff. I've never doen this before</p>";
+	
+}
 
 //------------------------------------------------------------------------------------------------
 const firebaseObj = firebase.database();
 
 // HTML elements
+const body = document.getElementById("body");
 const userNameBox = document.getElementById("name_box");
 const userBtn = document.getElementById("btn_submit_user");
 
@@ -122,21 +130,21 @@ firebaseObj.ref().once("value").then((snap)=>{
 	//If player is the host and creating a new game...
 	if(isNewGame){
 		hostPrompt.style.display = "block"; //reveal host prompt
-		const randomLetters = letterGenerator();
+		
+		const randomLetters = letterGenerator(); //create 9 random letters
 		var updates = {};
 		updates.host = playerKey;
-		updates.gameLetters = randomLetters;
+		updates.gameLetters = randomLetters; 
+		firebaseObj.ref().update(updates); // send letters to firebase
 		
-		firebaseObj.ref().update(updates);
 		letters.innerHTML = randomLetters.join(" ");
 		
 		
 		
 		
 		
+		
 	}
-	
-	
 	
 	
 });
