@@ -1,10 +1,4 @@
-let Player = class{
-	constructor(role){
-		this.name = "unknown";
-		this.role = role;
-		this.score = 0;
-	}
-};
+
 
 let letterGenerator = ()=>{
 	const letters = "abcdefghijklmnopqrstuvwxyz";
@@ -40,38 +34,90 @@ let letterGenerator = ()=>{
 	}
 };
 
-const databaseRef = firebase.database().ref();
 
-var pushUser = () =>{
-	player = new Player("host");
-	const userKey = databaseRef.child("players").push(player).key;
+function createGame(newGame){
+	if(newGame){
+		
+		const randomLetters = letterGenerator();
+		
+		firebaseObj.ref().set({
+			host : "",
+			gameLetters : randomLetters,
+			gameState : "inactive",
+			correctAnswer : "",
+			answerDescription : "",
+			timeRemaining : 0,
+		});
+		
+		
+		firebaseObj.ref().onDisconnect().remove();
+		
+	}
+}
+
+function createPlayer(){
+	playerKey = firebaseObj.ref("players").push({
+		playerKey: "",
+		hasRegistered: false,
+		name: "",
+		score: 0,
+	}).key;
 	
-	return userKey;
+	var updates = {};
+	updates["players/" + playerKey + "/playerKey"] = playerKey;
+	firebaseObj.ref().update(updates);
 	
-};
+	firebaseObj.ref("players/" + playerKey).onDisconnect().remove();
+	
+	return playerKey;
+}
 
-userKey = pushUser();
-firebase.database().ref("players/" + userKey).onDisconnect().remove();
+function registerPlayer(){
+	const userName = userNameBox.value;
+	var updates = {};
+	updates["players/" + playerKey + "/name"] = userName;
+	updates["players/" + playerKey + "/hasRegistered"] = true;
+	
+	firebaseObj.ref().update(updates);
+}
 
-//Add User's name to firebase player object
 
+//------------------------------------------------------------------------------------------------
+const firebaseObj = firebase.database();
 const userNameBox = document.getElementById("name_box");
 const userSubmit = document.getElementById("btn_submit_user");
 
-userSubmit.addEventListener("click", ()=> {
+
+
+// Setting up game
+// First check if game has been created
+firebaseObj.ref().once("value").then((snap)=>{ 
+
+	const newGame = (snap.val() === null);
+	createGame(newGame);
+	const playerKey = createPlayer();
 	
-	const userName = userNameBox.value;
-	var updates = {};
-	updates["/players/" + userKey + "/name"] = userName;
+	if(newGame){
+		var updates = {};
+		updates.host = playerKey;
+		firebaseObj.ref().update(updates);
+	}
 	
-	firebase.database().ref().update(updates);
+	//Add User's name to firebase player object
+	userSubmit.addEventListener("click", registerPlayer);
+	
 	
 });
 
 
 
-const gameLetters = letterGenerator();
-console.log(gameLetters.toString());
+
+
+
+
+
+
+
 
 
 
