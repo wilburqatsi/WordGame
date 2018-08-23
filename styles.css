@@ -4,9 +4,39 @@
 }
 
 body{
+    
+    height: 100vh;
+    
     text-align: center;
+    
+    font-family: "Lucida Console", Monaco, monospace;
+    background-image: linear-gradient(to bottom left, aqua, blueviolet);
+    background-repeat: no-repeat;
+    background-size: cover;
+    
+    
+    
 }
 
-#host_prompt{
-    display: none;
+p{
+    margin: 1em 0 1em 0;
+}
+
+#word{
+    display: block;
+    margin: 0 auto 0 auto;
+}
+
+#screen_bottom{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    height: 60px;
+    
+}
+
+#render_players_div div{
+    display: inline-block;
+    margin: 10px 10px;
 }

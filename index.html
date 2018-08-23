@@ -12,36 +12,22 @@
 
 </head>
 
-<body id="body">
-	
-	<h1>The Game?</h1>
-	<p>
-		Enter your name:
-	</p>
-	
-	<input id="name_box" type="text">
-	<!--<button id="btn_submit_user" onclick="registerPlayer();">Enter</button>-->
-	<button id="btn_submit_user" onclick="renderWelcome();">Enter</button>
-	
-	
-	<div id="host_prompt">
-		<p>Here are 9 random letters</p>	
-		<div id="game_letters"></div>
+<body>
+	<div id="render_div">
+		<h1>The Game?</h1>
 		<p>
-			Make a word using these letters. You can only use each letter once.
-			Others will try to guess this word.
+			Enter your name:
 		</p>
 		
-		<input id="word">
-		<button id="btn_submit_word" onclick="addWord();">Enter</button>
+		<input id="name_box" type="text">
+		<button id="btn_submit_user">Enter</button>
 		
-		<textarea id="description" rows="4" cols="40">Give a description of your word
-		</textarea>
-		<input id="btn_submit_desc" type="button" value="Enter">
 	</div>
 	
-	<a href="the-gauntlet.html">Go to gauntlet</a>
-	
+	<div id="screen_bottom">
+		<h2>PLAYERS ONLINE</h2>
+		<div id="render_players_div"></div>
+	</div>
 	
 	<script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
 	
