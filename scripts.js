@@ -110,12 +110,10 @@ function addDesc(desc){
 	return promise;
 }
 
-function showTime(){ //incomplete
+function showTime(){ 
 	
 	const timeRef = document.getElementById("timer");
 	const endTime = new Date().getTime() + 60000;
-	
-	//console.log(timeRef);
 	
 	let interval = setInterval(()=>{
 		const now = new Date().getTime();
@@ -125,21 +123,19 @@ function showTime(){ //incomplete
 			clearInterval(interval);
 		}
 	}, 1000);
-	
-	
-	
-	
-	
-
 }
 
-function checkTime(endTime){ //incomplete
+function checkTime(){ //incomplete
 	
-	const now = new Date().getTime();
-	if(now >= endTime){
-		firebaseObj.ref().update({gameState : "complete"});
-	}
+	const endTime = new Date().getTime() + 60000;
 	
+	let interval = setInterval(()=>{
+		const now = new Date().getTime();
+		if(now >= endTime){
+			clearInterval(interval);
+			firebaseObj.ref().update({gameState : "complete"});
+		}
+	}, 1000);
 }
 
 
@@ -192,6 +188,7 @@ function renderHostView(){
 			<div id="player_guesses"></div>`;
 		
 		showTime();
+		checkTime();
 	});
 }
 
@@ -221,6 +218,7 @@ function renderPlayerView(){
 			<div id="guesses"></div>
 			<div id="other_players"></div> `;
 		showTime();
+		checkTime();
 	});
 	
 }
@@ -283,12 +281,16 @@ firebaseObj.ref("gameState").on("value", snap => {
 	// if game has been started
 	if(snap.val() === "active"){ 
 		
-		firebaseObj.ref("host").once("value")
+		firebaseObj.ref().once("value")
 		.then(snap => {
-			if(snap.val() === playerID){
+			
+			const host = snap.child("host").val();
+			const isRegistered = snap.child("players/" + playerID + "/hasRegistered");
+			
+			if(host === playerID && isRegistered){
 				renderHostView();
 			}
-			else{
+			else if(isRegistered){
 				renderPlayerView();
 			}
 		});
