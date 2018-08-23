@@ -34,8 +34,6 @@ function letterGenerator(){
 	}
 }
 
-
-
 function createGame(playerID, letters){
 	
 	firebaseObj.ref().onDisconnect().remove();
@@ -77,12 +75,12 @@ function addWord(word, gameLetters){
 	
 	let validEntry = true;
 	
-	const wordArry = word.toLowerCase().slice();
+	const wordArr = word.toLowerCase().slice();
 	let letterArr = gameLetters.slice();
 	
-	for(let i = 0; i < wordArry.length; i++){
+	for(let i = 0; i < wordArr.length; i++){
 	
-		const index = letterArr.indexOf(wordArry[i]);
+		const index = letterArr.indexOf(wordArr[i]);
 		if(index < 0){
 			validEntry = false;
 			break;
@@ -92,7 +90,7 @@ function addWord(word, gameLetters){
 		}
 	}
 	
-	if(wordArry === ""){
+	if(wordArr === ""){
 		alert("Can't enter nothing!");
 	}
 	
@@ -112,11 +110,27 @@ function addDesc(desc){
 	return promise;
 }
 
-function showTime(endTime){ //incomplete
+function showTime(){ //incomplete
 	
-	const now = new Date().getTime();
-	timeLeft = endTime - now;
+	const timeRef = document.getElementById("timer");
+	const endTime = new Date().getTime() + 60000;
 	
+	//console.log(timeRef);
+	
+	let interval = setInterval(()=>{
+		const now = new Date().getTime();
+		const timeLeft = endTime - now;
+		timeRef.innerHTML = (Math.round(timeLeft/1000));
+		if(now >= endTime){
+			clearInterval(interval);
+		}
+	}, 1000);
+	
+	
+	
+	
+	
+
 }
 
 function checkTime(endTime){ //incomplete
@@ -176,6 +190,8 @@ function renderHostView(){
 			
 			<p>Here's what people are guessing</p>
 			<div id="player_guesses"></div>`;
+		
+		showTime();
 	});
 }
 
@@ -188,29 +204,44 @@ function renderPlayerView(){
 	
 	
 		renderDiv.innerHTML =
-		`<h2>Can you guess the word?</h2>
-		<p>Time remaining</p>
-		<div id="timer"></div>
-		
-		
-		<p>You have nine letters</p>
-		<h2>${letters}</h2>
-		
-		<p>Hint:</p>
-		<h2 id="host_desc">${desc}</h2>
-		
-		<input id="answer_input" type="text">
-		<button id="answer_btn">Try</button>
-		
-		<div id="guesses"></div>
-		<div id="other_players"></div> `;
-
+			`<h2>Can you guess the word?</h2>
+			<p>Time remaining</p>
+			<div id="timer"></div>
+			
+			
+			<p>You have nine letters</p>
+			<h2>${letters}</h2>
+			
+			<p>Hint:</p>
+			<h2 id="host_desc">${desc}</h2>
+			
+			<input id="answer_input" type="text">
+			<button id="answer_btn">Try</button>
+			
+			<div id="guesses"></div>
+			<div id="other_players"></div> `;
+		showTime();
 	});
 	
 }
-	
-	
 
+function renderEndView(){
+	firebaseObj.ref().once("value").then(snap => {
+		const gameWinner = snap.child("winner").val();
+		const word = snap.child("correctAnswer").val();
+		const desc = snap.child("answerDescription").val();
+		
+		`<h1>${gameWinner} is the winner!!!</h1>
+		<p>The word is ${word}</p>`;
+		
+	});
+	
+}
+
+function renderDisconnect(){
+	`<h1>Looks like the host has disconnected...</h1>
+	<h1>:\(</h1>`;
+}
 
 
 
@@ -231,8 +262,8 @@ function createID(){
 }
 
 
-// Setting up game
-// First check if game has been created
+
+// Game SETUP: Things are being set up by the host
 
 firebaseObj.ref("gameState").once("value")
 
@@ -241,17 +272,14 @@ firebaseObj.ref("gameState").once("value")
 	const isFirstPlayer = (snap.val() === null);
 	
 	if(isFirstPlayer){
-		createGame(playerID, letters)
-		.then(createPlayer(playerID));
+		createGame(playerID, letters);
 	}
-	else{
-		createPlayer(playerID);
-	}
+	
+	createPlayer(playerID);
 });
 
-// This checks to see if a game has officially started or finished
+// Game START, timer countdown begins
 firebaseObj.ref("gameState").on("value", snap => {
-	
 	// if game has been started
 	if(snap.val() === "active"){ 
 		
@@ -324,18 +352,6 @@ nameBtn.addEventListener("click", ()=>{
 	});
 });
 
-//function checkWord(word){
-//	
-//	
-//	
-//	let correctWord = false;
-//	
-//	
-//	
-//	
-//	
-//	return correctWord;
-//}
 
 
 //Submit host word and description
@@ -356,9 +372,7 @@ renderDiv.addEventListener("click",
 		
 		if(e.target && e.target.id === "answer_btn"){
 			
-			const guess = document.getElementById("answer_input").value;
-			
-			
+			const guess = document.getElementById("answer_input").value.toLowerCase();
 			
 			firebaseObj.ref().once("value")
 			.then(snap => {
