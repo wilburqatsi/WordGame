@@ -1,8 +1,17 @@
+// Game: Cryptic Messages
+// By: William Chang
+// Date: 8/24/2018
+//
+// Description: The host enters in a word made up of 9 random letters.
+// Gives a cryptic messages that gives a hint but doesn't reveal the word.
+//
+
 
 // Create randomized ID for client
 function createID(){
 	return '_' + Math.random().toString(36).substr(2, 9);
 }
+
 
 // Creates random letters for game
 function letterGenerator(){
@@ -39,9 +48,11 @@ function letterGenerator(){
 	}
 }
 
-function createGame(playerID, letters){
+
+// Creates a new game in firebase
+function createGame(playerID, letters){ 
 	
-	firebaseObj.ref().onDisconnect().remove();
+	firebaseObj.ref().onDisconnect().remove(); // disconnect
 	
 	var promise = firebaseObj.ref().set({
 		host : playerID,
@@ -49,22 +60,25 @@ function createGame(playerID, letters){
 		gameState : "setup",
 	});
 	
-	
 	return promise;
 }
 
-function createPlayer(ID){
-	firebaseObj.ref("players/" + ID).onDisconnect().remove();
+
+// Creates a new player in firebase using unique ID
+function createPlayer(ID){ 
 	
-	var promise = firebaseObj.ref("players/" + ID).set({
+	firebaseObj.ref("players/" + ID).onDisconnect().remove(); // disconnect
 	
+	var promise = firebaseObj.ref("players/" + ID).set({	
 		hasRegistered: false,
 	});
 	
 	return promise;
 }
 
-function registerPlayer(playerID, userName){
+
+// Registers player once they enter their name
+function registerPlayer(userName){
 	
 	var updates = {};
 	updates["players/" + playerID + "/name"] = userName;
@@ -74,15 +88,17 @@ function registerPlayer(playerID, userName){
 	return promise;
 }
 
+
+//Adds host's word into fire base, validates word first
 function addWord(word, gameLetters){
 	
 	let validEntry = true;
 	
-	const wordArr = word.toLowerCase().slice();
-	let letterArr = gameLetters.slice();
+	const wordArr = word.toLowerCase().slice(); //Lowercases word and adds to new array
+	let letterArr = gameLetters.slice(); // Converts game's letters to array
 	
-	for(let i = 0; i < wordArr.length; i++){
-	
+	for(let i = 0; i < wordArr.length; i++){        // Validates word by removing each letter
+													// of user's word from the game's letters
 		const index = letterArr.indexOf(wordArr[i]);
 		if(index < 0){
 			validEntry = false;
@@ -107,6 +123,8 @@ function addWord(word, gameLetters){
 	}
 }
 
+
+// Adds cryptic message that describes word to firebase
 function addDesc(desc){
 		
 	if(desc !== ""){
@@ -119,15 +137,19 @@ function addDesc(desc){
 	}
 }
 
+
+// Shows countdown timer
 function showTime(){ 
 	
 	const timeRef = document.getElementById("timer");
 	const endTime = new Date().getTime() + 61000;
 	
-	let interval = setInterval(()=>{
+	// setInterval() shows time every second until time < 0
+	let interval = setInterval(()=>{ 
 		const now = new Date().getTime();
 		const timeLeft = endTime - now;
 		
+		// Change timer colors depending on remaining time
 		if(timeLeft > 30000){
 			timeRef.style.color = "LawnGreen";
 		}
@@ -146,9 +168,10 @@ function showTime(){
 	}, 1000);
 }
 
+// Starts countdown and changes game state once time runs out.
 function checkTime(){
 	
-	const endTime = new Date().getTime() + 60000;
+	const endTime = new Date().getTime() + 61000;
 	
 	let interval = setInterval(()=>{
 		const now = new Date().getTime();
@@ -160,6 +183,7 @@ function checkTime(){
 }
 
 
+// Creates setup screen for players
 function renderSetup(isFirstPlayer){
 	
 	if(isFirstPlayer){
@@ -200,7 +224,7 @@ function renderSetup(isFirstPlayer){
 	}
 }
 
-
+// Displays word and message input to host
 function renderHostWelcome(gameLetters, userName){
 	
 	renderDiv.innerHTML =
@@ -226,7 +250,7 @@ function renderHostWelcome(gameLetters, userName){
 		
 }
 
-
+// Displays timer, text input, and user responses once game has STARTED
 function renderGameView(snap){
 	
 	const word = snap.child("correctAnswer").val();
@@ -235,7 +259,7 @@ function renderGameView(snap){
 	const host = snap.child("host").val();
 	const isRegistered = snap.child("players/" + playerID + "/hasRegistered").val();
 	
-	if(host === playerID && isRegistered){
+	if(host === playerID && isRegistered){ //What the host sees
 		renderDiv.innerHTML =
 		`<div class="time_div">
 			<p>Time remaining: </p>
@@ -251,7 +275,7 @@ function renderGameView(snap){
 		<div id="guesses"></div>`;
 	}
 	
-	else if(isRegistered){
+	else if(isRegistered){ //What normal players will see
 		renderDiv.innerHTML =
 		`<div class="time_div">
 			<p>Time remaining: </p>
@@ -274,17 +298,19 @@ function renderGameView(snap){
 	}
 	
 	
-	else{
+	else{                           // Unregistered players will be locked out
 		renderDiv.innerHTML = 
 		`<h1>Game in session...</h1>
 		<h2>Wait around a bit for the next game...</h2>`;
 	}
 	
-	showTime();
-	checkTime();
+	showTime();  // Shows timer.
+	checkTime(); // Changes game state once timer is finished.
 	
 }
 
+
+//Displays ending screen
 function renderEnd(snap){
 	
 	const isRegistered = snap.child("players/" + playerID + "/hasRegistered").val();
@@ -298,7 +324,7 @@ function renderEnd(snap){
 	const hostName = snap.child("players/" + hostID + "/name").val();
 	
 	if(isRegistered){
-		if(winnerID !== null){
+		if(winnerID !== null){  //if players successfully guess word
 			const gameWinner = snap.child("players/" + winnerID + "/name").val();
 			
 			renderDiv.innerHTML =
@@ -310,7 +336,7 @@ function renderEnd(snap){
 			
 		}
 		
-		else{
+		else{  // if no one guesses the word
 			renderDiv.innerHTML =
 			`<h1>No one guessed the word!!!</h1>
 			<h2>The word is ${word}: <i>"${desc}"</i></h2>
@@ -318,7 +344,7 @@ function renderEnd(snap){
 			<button id="reset" class="button">Start Over?</button>`;
 		}
 	}
-	else{
+	else{ // unregistered players are locked out
 		renderDiv.innerHTML = 
 		`<h1>Game in session...</h1>
 		<h2>Wait around a bit for the next game...</h2>`;
@@ -328,55 +354,51 @@ function renderEnd(snap){
 
 
 //------------------------------------------------------------------------------------------------
-const firebaseObj = firebase.database();
 
-const playerID = createID();
-const letters = letterGenerator();
+const playerID = createID();             // Creates random ID for client
+const letters = letterGenerator();       // 9 random game letters
+const firebaseObj = firebase.database(); // firebase object
 
 const renderDiv = document.getElementById("render_div");
 const playersDiv = document.getElementById("render_players_div");
 
-
-
-
-
-// Game SETUP: Things are being set up by the host
-
-firebaseObj.ref("gameState").once("value")
-
-.then((snap)=>{ 
+// Tracks changes in game state and adds dynamic HTML accordingly
+firebaseObj.ref("gameState").on("value", snap => { // Game SETUP: Things are being set up by the host
 	
-	const isFirstPlayer = (snap.val() === null);
+	if(snap.val() === null){
+		const isFirstPlayer = true;
 	
-	if(isFirstPlayer){
-		createGame(playerID, letters);
+		if(isFirstPlayer){
+			createGame(playerID, letters);
+		}
+		
+		createPlayer(playerID)
+		.then(renderSetup(isFirstPlayer));
+		
 	}
 	
-	createPlayer(playerID);
+	else if(snap.val() === "setup"){
+		
+		createPlayer(playerID)
+		.then(renderSetup(false));
+	}
 	
-	renderSetup(isFirstPlayer);
-});
-
-// Game START, timer countdown begins
-firebaseObj.ref("gameState").on("value", snap => {
-	
-	
-	
-	// if game has been started
-	if(snap.val() === "active"){ 
+	// GAME has started
+	else if(snap.val() === "active"){ // timer countdown begins
 		
 		firebaseObj.ref().once("value")
 		.then(snap => {renderGameView(snap);});
 	}
 	
-	// if game is finished
-	if(snap.val() === "finished"){
+	// GAME has finished
+	else if(snap.val() === "finished"){
 		
 		firebaseObj.ref().once("value")
 		.then(snap => {renderEnd(snap);});
 	}
 	
-	if(snap.val() === "reset"){
+	// GAME has been reset
+	else if(snap.val() === "reset"){
 		location.reload();
 	}
 	
@@ -384,7 +406,6 @@ firebaseObj.ref("gameState").on("value", snap => {
 
 
 // Display all registered players at bottom of screen
-
 firebaseObj.ref("players").on("value", snap => {
 	
 	playersDiv.innerHTML = "";
@@ -408,8 +429,8 @@ firebaseObj.ref("players").on("value", snap => {
 
 });
 
-// Show failed guesses
 
+// Show failed guesses
 firebaseObj.ref("wrongAnswers").on("child_added", (snap) => {
 	const guessDiv = document.getElementById("guesses");
 	const guess = snap.val();
@@ -421,16 +442,14 @@ firebaseObj.ref("wrongAnswers").on("child_added", (snap) => {
 
 
 //Event Listeners
-
 renderDiv.addEventListener("click", (e)=>{
 		
 	// Add player's name and register them
 	if(e.target && e.target.id === "btn_submit_user"){
 		
-		const nameInput = document.getElementById("name_box");
-		const userName = nameInput.value;
+		const userName = document.getElementById("name_box").value;
 			
-		registerPlayer(playerID, userName)
+		registerPlayer(userName)
 		.then(()=>{firebaseObj.ref("host").once("value")
 			  
 		.then(snap => { //Check if user is the game's host
@@ -460,7 +479,7 @@ renderDiv.addEventListener("click", (e)=>{
 		});
 	}
 	
-	// Spies' guess word
+	// Players guess the word
 	if(e.target && e.target.id === "answer_btn"){
 		
 		const guessBox = document.getElementById("answer_input");
@@ -471,20 +490,21 @@ renderDiv.addEventListener("click", (e)=>{
 			
 			const answer = snap.child("correctAnswer").val();
 			
-			if(answer === guess){
+			if(answer === guess){ // Correct guess ends the game
 				let updates = {};
 				updates.winnerID = snap.child("players/" + playerID).key;
 				updates.gameState = "finished";
 				console.log(updates.winner);
 				firebaseObj.ref().update(updates);
 			}
-			else{
+			else{ // Incorrect guesses get added to firebase
 				firebaseObj.ref("wrongAnswers").push(guess);
 			}
 			guessBox.value = "";
 		});
 	}
 	
+	// If anyone resets the game at the end
 	if(e.target && e.target.id === "reset"){
 		firebaseObj.ref().update({gameState : "reset"});
 	}
