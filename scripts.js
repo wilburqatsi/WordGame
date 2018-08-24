@@ -57,10 +57,8 @@ function createPlayer(ID){
 	firebaseObj.ref("players/" + ID).onDisconnect().remove();
 	
 	var promise = firebaseObj.ref("players/" + ID).set({
-		
+	
 		hasRegistered: false,
-		score: 0,
-		
 	});
 	
 	return promise;
@@ -124,12 +122,24 @@ function addDesc(desc){
 function showTime(){ 
 	
 	const timeRef = document.getElementById("timer");
-	const endTime = new Date().getTime() + 60000;
+	const endTime = new Date().getTime() + 61000;
 	
 	let interval = setInterval(()=>{
 		const now = new Date().getTime();
 		const timeLeft = endTime - now;
+		
+		if(timeLeft > 30000){
+			timeRef.style.color = "LawnGreen";
+		}
+		else if(timeLeft > 10000){
+			timeRef.style.color = "yellow";
+		}
+		else{
+			timeRef.style.color = "red";
+		}
+		
 		timeRef.innerHTML = (Math.round(timeLeft/1000));
+		
 		if(now >= endTime){
 			clearInterval(interval);
 		}
@@ -150,31 +160,6 @@ function checkTime(){
 }
 
 
-
-function renderHostWelcome(gameLetters, userName){
-	
-	renderDiv.innerHTML =
-		`<h1>Hello ${userName}!</h1>
-		
-		<p>Here are 9 random letters</p>	
-		<div id="game_letters"></div>
-		<p>
-			Make a word using these letters. You can only use each letter once.
-			Others will try to guess this word.
-		</p>
-		
-		<form onsubmit = "return false">
-			
-			Your secret word:<input id="word" type="text" required>
-			<p>Write a cryptic message about your word</p>
-			<input id="description" type="text" required>
-			<input id="word_desc_btn" type="submit" value="START TIMER">
-		</form>`;
-		
-	document.getElementById("game_letters").innerHTML = gameLetters.join(" ");
-		
-}
-
 function renderSetup(isFirstPlayer){
 	
 	if(isFirstPlayer){
@@ -184,9 +169,13 @@ function renderSetup(isFirstPlayer){
 		</h1>
 		
 		<form onsubmit = "return false">
-			<input type="text" id="name_box" name="usrname" required>
-			<input type="submit" id="btn_submit_user" value="TRANSMIT">
-		</form>`;
+			<input type="text" class="textbox" id="name_box" required>
+			<input type="submit" class="button" id="btn_submit_user" value="TRANSMIT">
+		</form>
+		
+		<p>
+			Invite some of your pals by sharing this link: ${window.location.href}
+		</p>`;
 		
 	}
 	
@@ -197,15 +186,46 @@ function renderSetup(isFirstPlayer){
 		</h1>
 		
 		<form onsubmit = "return false">
-			<input id="name_box" type="text" required>
-			<input id="btn_submit_user" type="submit" value="TRANSMIT">
+			<input type="text" class="textbox" id="name_box" required>
+			<input type="submit" class="button" id="btn_submit_user" value="TRANSMIT">
 		</form>
+		
+		<p>
+			Invite some of your pals by sharing this link: ${window.location.href}
+		</p>
 		
 		<div id="wait_msg">
 			<h2>Waiting for host to submit secret word</h2>
 		</div>`;
 	}
 }
+
+
+function renderHostWelcome(gameLetters, userName){
+	
+	renderDiv.innerHTML =
+		`<h1>Hello ${userName}!</h1>
+		
+		<p>Here are 9 random letters</p>	
+		<div id="game_letters" class="random_letters"></div>
+		<p>
+			Make a word using these letters. You can only use each letter once.
+			Others will try to guess this word.
+		</p>
+		
+		<form onsubmit = "return false">
+			
+			<p>Your secret word:</p>
+			<input id="word" class="textbox" type="text" required>
+			<p>Write a cryptic message about your word:</p>
+			<input id="description" class="textbox" type="text" required>
+			<input id="word_desc_btn" type="submit" value="START TIMER">
+		</form>`;
+		
+	document.getElementById("game_letters").innerHTML = gameLetters.join(" ");
+		
+}
+
 
 function renderGameView(snap){
 	
@@ -217,36 +237,39 @@ function renderGameView(snap){
 	
 	if(host === playerID && isRegistered){
 		renderDiv.innerHTML =
-		`<p>Time remaining</p>
-		<div id="timer"></div>
+		`<div class="time_div">
+			<p>Time remaining: </p>
+			<div id="timer"></div>
+		</div>
 		
-		<p>Your word is:</p>
+		<h1>Your word is:</h1>
 		<h2 id="host_word">${word}</h2>
-		<p><i>${desc}</i></p>
+		<h1>Cryptic description:</h1>
+		<h2><i>${desc}</i></h2>
 		
-		<h2>Spy failures</h2>
+		<h1>See everyone's failures below:</h1>
 		<div id="guesses"></div>`;
 	}
 	
 	else if(isRegistered){
 		renderDiv.innerHTML =
-		`<h2>Can you guess the word?</h2>
-		<p>Time remaining</p>
-		<div id="timer"></div>
+		`<div class="time_div">
+			<p>Time remaining: </p>
+			<div id="timer"></div>
+		</div>
 		
+		<h2>Can you guess the word?</h2>
+		<p>Word is made up of these 9 letters</p>
+		<p class="random_letters">${letters.join(" ")}</p>
 		
-		<p>You have nine letters</p>
-		<h2>${letters}</h2>
-		
-		<p>Hint:</p>
-		<h2 id="host_desc">${desc}</h2>
+		<h2 id="host_desc">Hint: <i>"${desc}"</i></h2>
 		
 		<form onsubmit="return false">
-			<input id="answer_input" type="text">
-			<input id="answer_btn" type="submit" value="Try">
+			<input id="answer_input" class="textbox" type="text">
+			<input id="answer_btn" class="button" type="submit" value="Try">
 		</form>
 		
-		<h2>Spy incorrect guesses</h2>
+		<h2>Everyone's incorrect guesses below:</h2>
 		<div id="guesses"></div>`;
 	}
 	
@@ -279,22 +302,20 @@ function renderEnd(snap){
 			const gameWinner = snap.child("players/" + winnerID + "/name").val();
 			
 			renderDiv.innerHTML =
-			`<h1>${gameWinner} has intercepted the word!!!</h1>
-			<p>The word is ${word}</p>
-			<p>${desc}</p>
-			<h2>${hostName}'s secret word was discovered!</h2>
-			<button id="reset">Start Over?</button>`;
+			`<h1>${gameWinner} has guessed the word!!!</h1>
+			<h2>The word is ${word}: <i>"${desc}"</i></h2>
+			<h1>${hostName}'s secret word was discovered!</h1>
+			<button id="reset" class="button">Start Over?</button>`;
 			
 			
 		}
 		
 		else{
 			renderDiv.innerHTML =
-			`<h1>The Spies have failed to intercept the word!!!</h1>
-			<p>The word is ${word}</p>
-			<p>${desc}</p>
-			<h2>${hostName} was able to safeguard world secrets!</h2>
-			<button id="reset">Start Over?</button>`;
+			`<h1>No one guessed the word!!!</h1>
+			<h2>The word is ${word}: <i>"${desc}"</i></h2>
+			<h1>${hostName} was able to safeguard world secrets!</h1>
+			<button id="reset" class="button">Start Over?</button>`;
 		}
 	}
 	else{
@@ -304,14 +325,6 @@ function renderEnd(snap){
 	}
 	
 }
-//
-//function renderDisconnect(){
-//	
-//	renderDiv.innerHTML =
-//	`<h1>Looks like the host has disconnected...</h1>
-//	<h1>:\(</h1>`;
-//}
-
 
 
 //------------------------------------------------------------------------------------------------
