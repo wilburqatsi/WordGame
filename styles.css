@@ -16,17 +16,18 @@ h6              { font-size: .75em; margin: 1.67em 0; font-weight: 400;}
 
 body{
     
-    height: 100vh;
+    min-height: 100vh;
     
     text-align: center;
     
     font-family: 'Space Mono', monospace;
     background-image: linear-gradient(to bottom left, aqua, blueviolet);
     background-repeat: no-repeat;
-    background-size: cover;
-    
-    
-    
+    background-size: cover;   
+}
+
+#render_div{
+    margin-bottom: 60px;
 }
 
 #title{
@@ -113,7 +114,7 @@ form p{
     color: #ccc;
     
     background-color: rgba(0, 0, 0, 0.25);
-    z-index: -5;
+    z-index: 5;
 }
 
 #screen_bottom *{
