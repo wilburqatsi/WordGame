@@ -45,14 +45,14 @@ button{
     margin: 0 auto 0 auto;
 }
 
-#screen_bottom{
+/*#screen_bottom{
     position: absolute;
     left: 0;
     right: 0;
     bottom: 60px;
     height: 60px;
     
-}
+}*/
 
 #guesses p{
     display: inline-block;
@@ -72,7 +72,3 @@ button{
     display: inline-block;
     margin: 10px 10px;
 }
-
-/*#reset{
-    display: none;
-}*/
